@@ -50,8 +50,7 @@ O agente inspeciona minuciosamente cada história (`STORY-00X.md`) e confronta c
 ## 3. Arquivo Gerado (`CHECK_REPORT.md`)
 
 A skill gera e salva obrigatoriamente o relatório de auditoria técnica em:
-- `refinamentos/<feature-slug>/CHECK_REPORT.md`
-- `~/Desktop/refinamentos/<feature-slug>/CHECK_REPORT.md`
+`refinamentos/<feature-slug>/CHECK_REPORT.md`
 
 ### Estrutura do `CHECK_REPORT.md`:
 
@@ -101,5 +100,5 @@ A skill gera e salva obrigatoriamente o relatório de auditoria técnica em:
 - [ ] Leu e analisou todas as histórias solicitadas em `refinamentos/<feature-slug>/stories/`.
 - [ ] Inspecionou o código-fonte nos repositórios para validação de contratos, tabelas e DTOs.
 - [ ] Verificou a nomenclatura Jeitto de tópicos Pub/Sub.
-- [ ] Gerou o arquivo `CHECK_REPORT.md` em `refinamentos/<feature-slug>/` e `~/Desktop/refinamentos/<feature-slug>/`.
+- [ ] Gerou o arquivo `CHECK_REPORT.md` em `refinamentos/<feature-slug>/`.
 - [ ] Apresentou o resumo com status visual (🟢/🟡/🔴) e recomendações claras para a equipe de engenharia.

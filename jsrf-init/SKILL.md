@@ -1,7 +1,7 @@
 ---
 name: jsrf-init
 description: >-
-  Skill voltada para inicializar a estrutura e o diretório de refinamento de um novo projeto ou funcionalidade do ecossistema Jeitto. Cria a pasta em refinamentos/<feature-slug>/ (e refinamentos/<feature-slug>/). Aceita como input a descrição do projeto/feature, opcionalmente o caminho dos repositórios envolvidos e, opcionalmente, o feature-slug (gerando um slug kebab-case automático a partir da descrição caso não seja informado). Prepara o ambiente para os próximos passos de refinamento e geração de JSDR.
+  Skill voltada para inicializar a estrutura e o diretório de refinamento de um novo projeto ou funcionalidade do ecossistema Jeitto. Cria a pasta em refinamentos/<feature-slug>/. Aceita como input a descrição do projeto/feature, opcionalmente o caminho dos repositórios envolvidos e, opcionalmente, o feature-slug (gerando um slug kebab-case automático a partir da descrição caso não seja informado). Prepara o ambiente para a fase de discovery (jsrf-discovery).
 ---
 
 # Skill: jsrf-init
@@ -32,8 +32,6 @@ refinamentos/<feature-slug>/
 ├── README.md              # Briefing inicial e metadados da feature
 ```
 
-> 💡 **Nota de Compatibilidade**: A pasta também deve ser sincronizada ou espelhada em `refinamentos/<feature-slug>/` para garantir suporte total a ambos os caminhos.
-
 ---
 
 ## 3. Fluxo de Execução da Skill
@@ -48,8 +46,7 @@ Sempre que acionado para inicializar um refinamento, siga o fluxo abaixo:
   - Se **não fornecido**: Analise a Descrição do Projeto, extraia os termos principais e gere um slug representativo (ex: "Criar motor de cálculo de limites" -> `motor-calculo-limites`).
 
 ### Passo 2: Criação do Diretório
-- Crie o diretório `refinamentos/<feature-slug>/` (caminho absoluto `refinamentos/<feature-slug>/`).
-- Garanta também a criação de `refinamentos/<feature-slug>/` (`refinamentos/<feature-slug>/`).
+- Crie o diretório `refinamentos/<feature-slug>/`.
 
 ### Passo 3: Geração do Arquivo de Briefing (`README.md`)
 No diretório criado, crie o arquivo `README.md` contendo o briefing inicial:
@@ -71,14 +68,14 @@ No diretório criado, crie o arquivo `README.md` contendo o briefing inicial:
 
 ## Próximos Passos
 1. Coletar os repositórios envolvidos, objetivos e impactos esperados.
-2. Executar a skill `jsrf-jsdr` para gerar o documento completo de arquitetura, diagramas Mermaid e contratos em `JSDR.md`.
+2. Executar `/jsrf-discovery <feature-slug>` para conduzir o discovery de negócio.
 ```
 
 ### Passo 4: Confirmação e Próximos Passos
 Ao concluir, exiba uma mensagem amigável confirmando:
 - O `feature-slug` utilizado.
 - O caminho absoluto do diretório criado.
-- A instrução para utilizar a skill `jsrf-jsdr` a seguir para gerar o JSDR completo.
+- A instrução para utilizar `/jsrf-discovery <feature-slug>` a seguir para iniciar o discovery.
 
 ---
 

@@ -19,7 +19,7 @@ Se o arquivo não existir, oriente o usuário a rodar `/jsrf-discovery <feature-
 
 ## Output esperado
 
-Dois artefatos em `refinamentos/<feature-slug>/` (e `refinamentos/<feature-slug>/`):
+Dois artefatos em `refinamentos/<feature-slug>/`:
 1. `JSDR.md` — documento macro da solução
 2. `.components.md` — mapa interno de componentes (usado pela fase de stories)
 
