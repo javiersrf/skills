@@ -1,7 +1,7 @@
 ---
 name: jsrf-check
 description: >-
-  Skill voltada para validação minuciosa e auditoria técnica de histórias por um Dev Especialista. Recebe como input o feature-slug do refinamento e a lista de histórias (ou valida todas as histórias em refinamentos/<feature-slug>/stories/). Inspeciona o conteúdo de cada história, cruza os contratos REST, Kafka/SQS, entidades de banco e regras de negócio diretamente com o código-fonte dos repositórios envolvidos, e gera um relatório detalhado em CHECK_REPORT.md apontando inconsistências, lacunas e readiness para desenvolvimento.
+  Skill voltada para validação minuciosa e auditoria técnica de histórias por um Dev Especialista. Recebe como input o feature-slug do refinamento, opcionalmente o módulo (quando o refinamento foi dividido via jsrf-split) e a lista de histórias (ou valida todas as histórias da pasta stories/ do refinamento ou do módulo). Inspeciona o conteúdo de cada história, cruza os contratos REST, Kafka/SQS, entidades de banco e regras de negócio diretamente com o código-fonte dos repositórios envolvidos, e gera um relatório detalhado em CHECK_REPORT.md apontando inconsistências, lacunas e readiness para desenvolvimento.
 ---
 
 # Skill: jsrf-check
@@ -14,16 +14,32 @@ Esta skill atua como um **Desenvolvedor Especialista / Tech Lead auditor**. Seu 
 
 1. **`feature-slug`** (*Obrigatório*):
    - O identificador do refinamento (ex: `pix-parcelado`, `motor-calculo-limites`).
-2. **Lista de Histórias / Stories** (*Opcional*):
-   - Lista específica de IDs (ex: `STORY-001, STORY-002`) ou informe "todas" para auditar todo o diretório `refinamentos/<feature-slug>/stories/`.
-3. **Caminho dos Repositórios Envolvidos** (*Opcional/Carregado do JSDR*):
-   - Os repositórios mapeados no `JSDR.md` ou `.components.md` para inspeção de código.
+2. **`modulo-slug`** (*Opcional*):
+   - O módulo a auditar, quando o refinamento foi dividido via `/jsrf-split` (ex: `cashin`). Ver "Detecção de módulos" abaixo.
+3. **Lista de Histórias / Stories** (*Opcional*):
+   - Lista específica de IDs (ex: `STORY-001, STORY-002`) ou informe "todas" para auditar todo o diretório `<pasta base>/stories/`.
+4. **Caminho dos Repositórios Envolvidos** (*Opcional/Carregado do JSDR*):
+   - Os repositórios mapeados no `JSDR.md` ou `.components.md` da pasta base para inspeção de código.
+
+### Detecção de módulos
+
+Antes de auditar, verifique se existe `refinamentos/<feature-slug>/modulos/.modules.md`.
+
+- **Sem módulos:** a **pasta base** é `refinamentos/<feature-slug>/`.
+- **Com módulos:** a skill atua dentro de um módulo.
+  1. Se o usuário informou o módulo e ele existe no `.modules.md`, use-o.
+  2. Caso contrário, liste os módulos (nome, escopo e quantidade de histórias em `modulos/<modulo-slug>/stories/`) e pergunte: "Este refinamento está dividido em módulos. Qual módulo deseja auditar?" Aceite também "todos": nesse caso, repita a auditoria para cada módulo que tiver histórias, gerando um relatório por módulo.
+  3. A **pasta base** passa a ser `refinamentos/<feature-slug>/modulos/<modulo-slug>/`.
+
+Em modo módulo, use a sub-JSDR do módulo como referência e, além das validações da seção 2, confira se as histórias respeitam as fronteiras do módulo:
+- Nenhuma história implementa um componente que pertence a outro módulo
+- As dependências de outros módulos usadas nas histórias estão listadas na seção 4.2 da sub-JSDR, com contrato idêntico ao do módulo dono (`modulos/<outro-modulo>/JSDR.md`)
 
 ---
 
 ## 2. O que o Dev Especialista Audita
 
-O agente inspeciona minuciosamente cada história (`STORY-00X.md`) e confronta com o código-fonte real do projeto:
+O agente inspeciona minuciosamente cada história (`<pasta base>/stories/*-STORY-00X.md`) e confronta com o código-fonte real do projeto:
 
 ### 1. **Consistência de Contratos de API (REST)**
 - O endpoint, método HTTP e URI definidos na história existem no repositório?
@@ -50,7 +66,9 @@ O agente inspeciona minuciosamente cada história (`STORY-00X.md`) e confronta c
 ## 3. Arquivo Gerado (`CHECK_REPORT.md`)
 
 A skill gera e salva obrigatoriamente o relatório de auditoria técnica em:
-`refinamentos/<feature-slug>/CHECK_REPORT.md`
+`<pasta base>/CHECK_REPORT.md`
+
+Ou seja, `refinamentos/<feature-slug>/CHECK_REPORT.md` sem módulos, ou `refinamentos/<feature-slug>/modulos/<modulo-slug>/CHECK_REPORT.md` em modo módulo.
 
 ### Estrutura do `CHECK_REPORT.md`:
 
@@ -58,6 +76,7 @@ A skill gera e salva obrigatoriamente o relatório de auditoria técnica em:
 # 🔍 Relatório de Validação Técnica (jsrf-check)
 
 **Feature Slug:** `<feature-slug>`  
+**Módulo:** `<modulo-slug>` (omita esta linha se o refinamento não tiver módulos)  
 **Data da Auditoria:** <DD/MM/AAAA HH:mm>  
 **Avaliador:** Dev Especialista AI (jsrf-check)  
 **Status Geral:** 🟢 PRONTO PARA DESENVOLVIMENTO / 🟡 ATENÇÃO REQUERIDA / 🔴 REPROVADO
@@ -97,8 +116,10 @@ A skill gera e salva obrigatoriamente o relatório de auditoria técnica em:
 
 ## 4. Checklist de Validação
 
-- [ ] Leu e analisou todas as histórias solicitadas em `refinamentos/<feature-slug>/stories/`.
+- [ ] Verificou se o refinamento tem módulos e, se tiver, definiu o módulo a auditar.
+- [ ] Leu e analisou todas as histórias solicitadas em `<pasta base>/stories/`.
 - [ ] Inspecionou o código-fonte nos repositórios para validação de contratos, tabelas e DTOs.
 - [ ] Verificou a nomenclatura Jeitto de tópicos Pub/Sub.
-- [ ] Gerou o arquivo `CHECK_REPORT.md` em `refinamentos/<feature-slug>/`.
+- [ ] Em modo módulo, validou as fronteiras e as dependências entre módulos.
+- [ ] Gerou o arquivo `CHECK_REPORT.md` em `<pasta base>/`.
 - [ ] Apresentou o resumo com status visual (🟢/🟡/🔴) e recomendações claras para a equipe de engenharia.

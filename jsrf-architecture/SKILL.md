@@ -570,3 +570,7 @@ Um componente por linha. Este arquivo é consumido pela próxima fase.
 ### Passo 8 — Chamar próxima fase
 
 > "JSDR gerado em `refinamentos/<feature-slug>/JSDR.md`. Revise o documento e, quando estiver pronto, use `/jsrf-stories <feature-slug>` para gerar as histórias."
+
+Se o JSDR ficou grande (mais de ~12 componentes novos, mais de ~4 aplicações ou capacidades de negócio claramente distintas), acrescente:
+
+> "Este JSDR é extenso. Considere rodar `/jsrf-split <feature-slug>` antes das histórias para dividi-lo em módulos e reduzir o contexto de cada frente de desenvolvimento."

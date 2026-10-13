@@ -33,8 +33,9 @@ Abra uma nova sessão do Claude Code e as skills aparecem como comandos `/jsrf-*
 | [`jsrf-init`](jsrf-init/SKILL.md) | Cria a pasta do refinamento e o briefing | descrição da feature, repo (opc.), slug (opc.) | `refinamentos/<slug>/README.md` |
 | [`jsrf-discovery`](jsrf-discovery/SKILL.md) | Entrevista de negócio (grill-me) | nome da feature | `refinamentos/.refinement-context/<slug>/discovery.md` |
 | [`jsrf-architecture`](jsrf-architecture/SKILL.md) | Mapeia componentes, contratos e diagramas | `<slug>` + discovery | `JSDR.md` + `.components.md` |
-| [`jsrf-stories`](jsrf-stories/SKILL.md) | Quebra o JSDR em uma história por componente novo | `<slug>` + JSDR + `.components.md` | `refinamentos/<slug>/stories/<ACRONYM>-STORY-00X.md` |
-| [`jsrf-check`](jsrf-check/SKILL.md) | Audita as histórias contra o código real | `<slug>` + lista de histórias (ou "todas") | `refinamentos/<slug>/CHECK_REPORT.md` |
+| [`jsrf-split`](jsrf-split/SKILL.md) | Divide um JSDR grande em módulos de negócio (opcional) | `<slug>` + JSDR + `.components.md` | `modulos/<modulo>/JSDR.md` + `.components.md` |
+| [`jsrf-stories`](jsrf-stories/SKILL.md) | Quebra o JSDR (ou a sub-JSDR do módulo) em uma história por componente novo | `<slug>` + `[modulo]` | `stories/<ACRONYM>-STORY-00X.md` |
+| [`jsrf-check`](jsrf-check/SKILL.md) | Audita as histórias contra o código real | `<slug>` + `[modulo]` + lista de histórias (ou "todas") | `CHECK_REPORT.md` |
 
 ---
 
@@ -43,6 +44,7 @@ Abra uma nova sessão do Claude Code e as skills aparecem como comandos `/jsrf-*
 ```mermaid
 graph LR
   I["/jsrf-init"] --> D["/jsrf-discovery"] --> A["/jsrf-architecture"] --> S["/jsrf-stories"] --> C["/jsrf-check"]
+  A -. JSDR grande .-> SP["/jsrf-split"] -.-> S
 ```
 
 0. **`/jsrf-init`** (opcional)
@@ -56,12 +58,16 @@ graph LR
    - `JSDR.md` com diagrama de serviços (`graph LR`), sequência do caminho feliz, ER (se houver tabelas novas), mapa de componentes `C01…` e contratos.
    - `.components.md`, usado pela fase seguinte.
 
+2.5. **`/jsrf-split checkout-pix`** (opcional, para JSDRs grandes)
+   Avalia se o JSDR é grande o suficiente para ser dividido e propõe **módulos de negócio** (ex.: `cliente`, `cashin`, `cashout`), atribuindo cada componente a exatamente um módulo. Depois de confirmar as fronteiras com você, gera em `refinamentos/<slug>/modulos/<modulo>/` uma sub-JSDR autocontida (contratos copiados, diagramas próprios, dependências de outros módulos) e o `.components.md` do módulo. O JSDR raiz ganha a seção **10. Módulos**, com o índice e o grafo de dependências.
+
 3. **`/jsrf-stories checkout-pix`**
    Propõe a ordem de implementação (infra antes de consumidores, o que pode rodar em paralelo) e **pede confirmação**. Depois gera uma história por componente novo com diagrama de sequência completo (sucesso, erros e idempotência), contrato, validações campo a campo, regras de negócio, integrações, exceções, observabilidade e plano de testes. Por fim, atualiza a seção 9 do JSDR.
    Os arquivos são nomeados com o acrônimo do slug: `checkout-pix` → `CP-STORY-001.md`.
+   Se o refinamento tiver módulos, a skill pergunta de qual módulo se trata (ou use `/jsrf-stories checkout-pix cashin`) e trabalha só dentro dele: `modulos/cashin/stories/CP-CASHIN-STORY-001.md`.
 
 4. **`/jsrf-check checkout-pix`** (opcional, recomendado)
-   Cruza cada história com o código-fonte (endpoints, DTOs, tópicos, migrations, quality gates) e gera `refinamentos/<slug>/CHECK_REPORT.md` com status 🟢 / 🟡 / 🔴 e as ações recomendadas antes da sprint.
+   Cruza cada história com o código-fonte (endpoints, DTOs, tópicos, migrations, quality gates) e gera `refinamentos/<slug>/CHECK_REPORT.md` com status 🟢 / 🟡 / 🔴 e as ações recomendadas antes da sprint. Com módulos, pergunta qual auditar (ou "todos"), valida também as fronteiras entre módulos e grava o relatório em `modulos/<modulo>/CHECK_REPORT.md`.
 
 ---
 
@@ -102,6 +108,25 @@ refinamentos/
         └── CP-STORY-002.md
 ```
 
+Com `/jsrf-split`, as histórias e o relatório ficam dentro de cada módulo:
+
+```text
+refinamentos/checkout-pix/
+├── JSDR.md                 # visão macro + seção 10. Módulos
+├── .components.md
+└── modulos/
+    ├── .modules.md
+    ├── cliente/
+    │   ├── JSDR.md
+    │   ├── .components.md
+    │   ├── CHECK_REPORT.md
+    │   └── stories/CP-CLIENTE-STORY-001.md
+    └── cashin/
+        ├── JSDR.md
+        ├── .components.md
+        └── stories/CP-CASHIN-STORY-001.md
+```
+
 ---
 
 ## Padrões aplicados pelas skills
@@ -121,4 +146,5 @@ As skills impõem as convenções JSRF. Vale conhecê-las para revisar o que for
 
 - Responda às sessões *grill-me* com calma: a qualidade do JSDR e das histórias depende diretamente dessas respostas.
 - Revise o `JSDR.md` antes de gerar as histórias. Ajustes nos contratos são mais baratos nessa etapa.
+- Use `/jsrf-split` quando o JSDR misturar capacidades de negócio distintas. Cada módulo vira um contexto menor e independente para quem for desenvolver.
 - Se uma skill reclamar de pré-requisito ausente (por exemplo, `discovery.md` ou `.components.md`), rode a fase anterior do fluxo.

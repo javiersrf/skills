@@ -2,7 +2,7 @@
 name: jsrf-stories
 description: 'Use esta skill quando o usuário desejar gerar histórias técnicas a partir de um JSDR, quebrar uma feature em histórias ou detalhar cada história de componente com contrato e plano de testes. Gatilhos: "refinement-stories", "gerar histórias", "quebrar em histórias", "detalhar histórias do refinamento".'
 user-invocable: true
-argument-hint: '<feature-slug>'
+argument-hint: '<feature-slug> [modulo-slug]'
 ---
 
 # Refinement Stories
@@ -10,18 +10,31 @@ argument-hint: '<feature-slug>'
 Você é um Tech Lead detalhando as histórias técnicas de uma feature.
 Seu objetivo é gerar um arquivo `.md` por história, com contrato, regras de implementação e plano de testes.
 
+## Detecção de módulos
+
+Antes de tudo, verifique se o refinamento foi dividido em módulos pelo `/jsrf-split`, ou seja, se existe `refinamentos/<feature-slug>/modulos/.modules.md`.
+
+**Sem módulos:** siga o fluxo normal com a **pasta base** `refinamentos/<feature-slug>/`.
+
+**Com módulos:** a skill atua dentro de **um módulo por execução**.
+1. Se o usuário informou o módulo no argumento (`<feature-slug> <modulo-slug>`) e ele existe no `.modules.md`, use-o.
+2. Caso contrário, liste os módulos disponíveis (nome, escopo e se já possuem histórias em `modulos/<modulo-slug>/stories/`) e pergunte: "Este refinamento está dividido em módulos. Para qual módulo deseja gerar as histórias?"
+3. A **pasta base** passa a ser `refinamentos/<feature-slug>/modulos/<modulo-slug>/`.
+
+Todos os caminhos abaixo são relativos à pasta base. Em modo módulo, **não** leia o JSDR raiz nem outros módulos: a sub-JSDR é autocontida, e manter o contexto restrito ao módulo é o objetivo da divisão.
+
 ## Pré-requisito
 
 Leia os arquivos:
-- `refinamentos/<feature-slug>/JSDR.md`
-- `refinamentos/<feature-slug>/.components.md`
+- `<pasta base>/JSDR.md`
+- `<pasta base>/.components.md`
 
-Se não existirem, oriente o usuário a rodar `jsrf-architecture` ou `/jsrf-architecture <feature-slug>` primeiro.
+Se não existirem, oriente o usuário a rodar `/jsrf-architecture <feature-slug>` (ou `/jsrf-split <feature-slug>`, em modo módulo) primeiro.
 
 ## Output esperado
 
 Um arquivo `.md` por componente novo em:
-`refinamentos/<feature-slug>/stories/`
+`<pasta base>/stories/`
 
 ### Regra do acronym do slug
 
@@ -31,9 +44,11 @@ Exemplo: `fase-1-nucleo-multi-provider` → segmentos `fase`, `1`, `nucleo`, `mu
 
 Se o acronym resultante colidir com o de outro refinamento já existente em `refinamentos/`, pergunte ao usuário como desambiguar antes de gerar os arquivos.
 
+Em modo módulo, acrescente o slug do módulo em maiúsculas ao acronym, para que os IDs não colidam entre módulos: `checkout-pix` + módulo `cashin` → `CP-CASHIN`.
+
 ### Nomenclatura
 
-`<ACRONYM>-STORY-001.md`, `<ACRONYM>-STORY-002.md`, etc., ordenadas pela sequência lógica de implementação. Ex.: `F1NMP-STORY-001.md`.
+`<ACRONYM>-STORY-001.md`, `<ACRONYM>-STORY-002.md`, etc., ordenadas pela sequência lógica de implementação. Ex.: `F1NMP-STORY-001.md` ou, em modo módulo, `CP-CASHIN-STORY-001.md`.
 
 ## Workflow
 
@@ -47,6 +62,7 @@ Ordene as histórias considerando dependências entre componentes:
 - Infraestrutura (filas, tópicos, schemas) vem antes de quem as consome
 - Endpoints que dependem de workers internos vêm depois
 - Componentes independentes podem ser implementados em paralelo (indique isso)
+- Em modo módulo, liste também os componentes de outros módulos dos quais este depende (seção 4.2 da sub-JSDR) como **pré-requisitos externos**; eles não viram histórias aqui
 
 Apresente a ordem ao usuário e confirme antes de gerar os arquivos.
 
@@ -110,6 +126,7 @@ Para cada componente, crie `stories/<ACRONYM>-STORY-00X.md` com a estrutura (sub
 # <ACRONYM>-STORY-00X — <Título da História>
 
 **Feature:** <Nome da Feature>
+**Módulo:** <modulo-slug> (omita esta linha se o refinamento não tiver módulos)
 **Componente:** <ID do componente no JSDR> — <tipo>
 **Aplicação:** <repositório>
 **Depende de:** <<ACRONYM>-STORY-00Y, ou "nenhuma">
@@ -274,7 +291,7 @@ Cenários que podem ser validados manualmente antes do deploy:
 
 ### Passo 5 — Atualizar seção de histórias no JSDR
 
-Após gerar todas as histórias, atualize a tabela na seção 9 do `JSDR.md`:
+Após gerar todas as histórias, atualize a tabela de histórias do `<pasta base>/JSDR.md` (seção 9 no JSDR raiz, seção 8 na sub-JSDR de módulo):
 
 | ID | Título | Componente | Arquivo |
 |----|--------|-----------|---------|
@@ -288,7 +305,7 @@ Apresente ao usuário:
 Refinamento completo para "<feature>":
 
 Artefatos gerados:
-  refinamentos/<feature-slug>/
+  <pasta base>/
   ├── JSDR.md
   └── stories/
       ├── <ACRONYM>-STORY-001.md
@@ -298,3 +315,5 @@ Artefatos gerados:
 <X> histórias geradas.
 Próximos passos: revise as histórias e valide os contratos com o time.
 ```
+
+Em modo módulo, informe também quais módulos ainda não têm histórias e sugira o próximo (`/jsrf-stories <feature-slug> <próximo-modulo>`).
