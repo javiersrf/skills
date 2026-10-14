@@ -8,26 +8,24 @@ Todos os artefatos são gerados em `refinamentos/<feature-slug>/` no diretório 
 
 ## Instalação
 
-Rode o script de instalação, que coloca todas as skills em `~/.agents/skills/`:
+Rode o script de instalação. Por padrão ele coloca todas as skills em `~/.agents/skills/`:
 
 ```bash
-./install.sh          # copia as skills (sobrescreve versões anteriores)
-./install.sh --link   # cria symlinks: alterações no repo valem na hora
+./install.sh                               # copia para ~/.agents/skills
+./install.sh --link                        # cria symlinks: alterações no repo valem na hora
+./install.sh --integration claude          # instala no diretório do Claude Code
+./install.sh --integration claude,codex    # vários agentes de uma vez
 ```
+
+| `--integration` | Diretório |
+|-----------------|-----------|
+| `agents` (padrão) | `~/.agents/skills` |
+| `claude` | `~/.claude/skills` |
+| `codex` | `~/.codex/skills` |
+| `gemini` | `~/.gemini/skills` |
+| `opencode` | `~/.config/opencode/skills` |
 
 Instale sempre todas as skills juntas: o `jsrf-module` lê os padrões definidos no `jsrf-architecture`.
-
-Para instalar manualmente no diretório de skills do Claude Code:
-
-```bash
-# Para todos os projetos (usuário)
-mkdir -p ~/.claude/skills
-cp -r jsrf-* ~/.claude/skills/
-
-# Ou apenas para um projeto específico
-mkdir -p <projeto>/.claude/skills
-cp -r jsrf-* <projeto>/.claude/skills/
-```
 
 Abra uma nova sessão do Claude Code e as skills aparecem como comandos `/jsrf-*`. Elas também são acionadas automaticamente por frases como "vamos refinar", "gerar JSDR" ou "gerar histórias".
 
