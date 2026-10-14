@@ -8,7 +8,16 @@ Todos os artefatos são gerados em `refinamentos/<feature-slug>/` no diretório 
 
 ## Instalação
 
-Copie (ou faça symlink) das pastas das skills para o diretório de skills do Claude Code:
+Rode o script de instalação, que coloca todas as skills em `~/.agents/skills/`:
+
+```bash
+./install.sh          # copia as skills (sobrescreve versões anteriores)
+./install.sh --link   # cria symlinks: alterações no repo valem na hora
+```
+
+Instale sempre todas as skills juntas: o `jsrf-module` lê os padrões definidos no `jsrf-architecture`.
+
+Para instalar manualmente no diretório de skills do Claude Code:
 
 ```bash
 # Para todos os projetos (usuário)
