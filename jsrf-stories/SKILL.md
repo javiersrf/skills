@@ -56,6 +56,14 @@ Em modo módulo, acrescente o slug do módulo em maiúsculas ao acronym, para qu
 
 Carregue o JSDR e o mapa de componentes. Liste os componentes **novos** — cada um vira uma história.
 
+Se `<pasta base>/stories/` já tiver histórias (por exemplo, depois de um `/jsrf-module`), trabalhe de forma incremental em vez de regerar tudo:
+- Componentes novos sem história → gere novas histórias, continuando a numeração a partir da maior existente
+- Histórias com status `Revisar` na tabela de histórias do JSDR → reescreva a história com base no contrato atual, mantendo o mesmo ID
+- Histórias com status `Obsoleta` → não apague o arquivo; adicione no topo `> ⚠️ Obsoleta: o componente <CXX> foi removido do JSDR em <data>.`
+- Demais histórias → não altere
+
+Apresente esse plano ao usuário junto com a ordem de implementação. Só regere todas as histórias se ele pedir explicitamente.
+
 ### Passo 2 — Definir ordem de implementação
 
 Ordene as histórias considerando dependências entre componentes:

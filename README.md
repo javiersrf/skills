@@ -34,6 +34,7 @@ Abra uma nova sessão do Claude Code e as skills aparecem como comandos `/jsrf-*
 | [`jsrf-discovery`](jsrf-discovery/SKILL.md) | Entrevista de negócio (grill-me) | nome da feature | `refinamentos/.refinement-context/<slug>/discovery.md` |
 | [`jsrf-architecture`](jsrf-architecture/SKILL.md) | Mapeia componentes, contratos e diagramas | `<slug>` + discovery | `JSDR.md` + `.components.md` |
 | [`jsrf-split`](jsrf-split/SKILL.md) | Divide um JSDR grande em módulos de negócio (opcional) | `<slug>` + JSDR + `.components.md` | `modulos/<modulo>/JSDR.md` + `.components.md` |
+| [`jsrf-module`](jsrf-module/SKILL.md) | Evolui a sub-JSDR de um módulo: novas capacidades, contratos alterados, remoções | `<slug>` + `[modulo]` + descrição da mudança | sub-JSDR atualizada + raiz e módulos impactados sincronizados |
 | [`jsrf-stories`](jsrf-stories/SKILL.md) | Quebra o JSDR (ou a sub-JSDR do módulo) em uma história por componente novo | `<slug>` + `[modulo]` | `stories/<ACRONYM>-STORY-00X.md` |
 | [`jsrf-check`](jsrf-check/SKILL.md) | Audita as histórias contra o código real | `<slug>` + `[modulo]` + lista de histórias (ou "todas") | `CHECK_REPORT.md` |
 
@@ -45,6 +46,7 @@ Abra uma nova sessão do Claude Code e as skills aparecem como comandos `/jsrf-*
 graph LR
   I["/jsrf-init"] --> D["/jsrf-discovery"] --> A["/jsrf-architecture"] --> S["/jsrf-stories"] --> C["/jsrf-check"]
   A -. JSDR grande .-> SP["/jsrf-split"] -.-> S
+  SP -.-> M["/jsrf-module"] -.-> S
 ```
 
 0. **`/jsrf-init`** (opcional)
@@ -61,9 +63,13 @@ graph LR
 2.5. **`/jsrf-split checkout-pix`** (opcional, para JSDRs grandes)
    Avalia se o JSDR é grande o suficiente para ser dividido e propõe **módulos de negócio** (ex.: `cliente`, `cashin`, `cashout`), atribuindo cada componente a exatamente um módulo. Depois de confirmar as fronteiras com você, gera em `refinamentos/<slug>/modulos/<modulo>/` uma sub-JSDR autocontida (contratos copiados, diagramas próprios, dependências de outros módulos) e o `.components.md` do módulo. O JSDR raiz ganha a seção **10. Módulos**, com o índice e o grafo de dependências.
 
+2.6. **`/jsrf-module checkout-pix cashin`** (opcional, para evoluir um módulo)
+   Mesmo papel do `jsrf-architecture`, mas restrito a um módulo: entende a mudança (nova capacidade, contrato alterado, regra nova ou remoção), explora o código e faz as perguntas técnicas. Antes de editar, mostra o plano com o impacto em outros módulos e nas histórias existentes. Depois atualiza a sub-JSDR, registra a mudança no **Histórico de alterações** e sincroniza o `.modules.md`, o JSDR raiz e os contratos copiados nos módulos que consomem os componentes alterados. Novos componentes recebem IDs globais, nunca reutilizados.
+
 3. **`/jsrf-stories checkout-pix`**
    Propõe a ordem de implementação (infra antes de consumidores, o que pode rodar em paralelo) e **pede confirmação**. Depois gera uma história por componente novo com diagrama de sequência completo (sucesso, erros e idempotência), contrato, validações campo a campo, regras de negócio, integrações, exceções, observabilidade e plano de testes. Por fim, atualiza a seção 9 do JSDR.
    Os arquivos são nomeados com o acrônimo do slug: `checkout-pix` → `CP-STORY-001.md`.
+   Se já houver histórias, a skill trabalha de forma incremental: gera só as dos componentes novos, reescreve as marcadas como `Revisar` e sinaliza as `Obsoleta`.
    Se o refinamento tiver módulos, a skill pergunta de qual módulo se trata (ou use `/jsrf-stories checkout-pix cashin`) e trabalha só dentro dele: `modulos/cashin/stories/CP-CASHIN-STORY-001.md`.
 
 4. **`/jsrf-check checkout-pix`** (opcional, recomendado)
