@@ -1,6 +1,6 @@
 # jsrf-skills
 
-Skills do Claude Code para conduzir **refinamentos técnicos** de features no ecossistema JSRF/Jeitto: do discovery de negócio até as histórias técnicas prontas para a sprint, passando pelo documento de arquitetura (**JSDR**) e uma auditoria final contra o código real.
+Skills de Agent para conduzir **refinamentos técnicos** de features no ecossistema JSRF/Jeitto: do discovery de negócio até as histórias técnicas prontas para a sprint, passando pelo documento de arquitetura (**JSDR**) e uma auditoria final contra o código real.
 
 Todos os artefatos são gerados em `refinamentos/<feature-slug>/` no diretório onde o Claude Code está rodando.
 
